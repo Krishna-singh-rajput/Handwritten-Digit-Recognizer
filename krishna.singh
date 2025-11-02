@@ -1,0 +1,67 @@
+# Handwritten-Digit-Recognizer
+# Handwritten Digit Recognizer using CNN (MNIST Dataset) 
+# Author: Krishna Singh 
+ 
+# Step 1: Import Required Libraries 
+import tensorflow as tf 
+from tensorflow.keras import datasets, layers, models 
+import matplotlib.pyplot as plt 
+ 
+# Step 2: Load the MNIST Dataset 
+(x_train, y_train), (x_test, y_test) = datasets.mnist.load_data() 
+ 
+# Step 3: Normalize Data (scale pixel values between 0 and 1) 
+x_train, x_test = x_train / 255.0, x_test / 255.0 
+ 
+# Step 4: Reshape Data to fit CNN input (28x28 images with 1 channel) 
+x_train = x_train.reshape((x_train.shape[0], 28, 28, 1)) 
+x_test = x_test.reshape((x_test.shape[0], 28, 28, 1)) 
+ 
+# Step 5: Build CNN Model 
+model = models.Sequential([ 
+    layers.Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)), 
+    layers.MaxPooling2D((2,2)), 
+    layers.Conv2D(64, (3,3), activation='relu'), 
+    layers.MaxPooling2D((2,2)), 
+    layers.Flatten(), 
+    layers.Dense(64, activation='relu'), 
+    layers.Dense(10, activation='softmax') 
+]) 
+ 
+# Step 6: Compile Model 
+model.compile(optimizer='adam', 
+              loss='sparse_categorical_crossentropy', 
+              metrics=['accuracy']) 
+ 
+# Step 7: Train the Model 
+history = model.fit(x_train, y_train, epochs=5, validation_data=(x_test, y_test)) 
+ 
+# Step 8: Evaluate Model Performance 
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2) 
+print(f"\n Test Accuracy: {test_acc:.4f}") 
+ 
+# Step 9: Plot Accuracy and Loss Curves 
+plt.figure(figsize=(10,4)) 
+plt.subplot(1,2,1) 
+plt.plot(history.history['accuracy'], label='Train Accuracy') 
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy') 
+plt.title('Model Accuracy') 
+plt.xlabel('Epoch') 
+plt.ylabel('Accuracy') 
+plt.legend() 
+ 
+plt.subplot(1,2,2) 
+plt.plot(history.history['loss'], label='Train Loss') 
+plt.plot(history.history['val_loss'], label='Validation Loss') 
+plt.title('Model Loss') 
+plt.xlabel('Epoch') 
+plt.ylabel('Loss') 
+plt.legend() 
+plt.show() 
+ 
+# Step 10: Make a Prediction on One Image 
+import numpy as np 
+index = 10 
+plt.imshow(x_test[index].reshape(28,28), cmap='gray') 
+pred = model.predict(x_test[index].reshape(1,28,28,1)) 
+print(f"🧾 Predicted Digit: {np.argmax(pred)}")
